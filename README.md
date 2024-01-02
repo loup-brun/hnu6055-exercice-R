@@ -1,4 +1,4 @@
-# HNU6055 Donnees Ouverts
+# HNU6055 Donnees Ouverts (Hiver 2024)
 
 
 Shield: [![CC BY-SA 4.0][cc-by-sa-shield]][cc-by-sa]
