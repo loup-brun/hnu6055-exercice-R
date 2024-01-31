@@ -6,35 +6,9 @@ Veuillez consulter le site web du cours pour toutes les informations pertinentes
 
 https://lisateichmann.github.io/udem2024_donneesouverts/
 
-
-# Source et extraction des données
-
-Les données ont été extraites de ...
-
-# Prétraitement des données
-
-Par exemple, les valeurs manquantes, etc. ont été supprimées.
-
 # Dossiers
 
-## Données
-contient des tableaux de données.
-
-**nom_de_fichier_1** contient ...
-
-**nom_de_fichier_2** contient ...
-
-## Scripts
-contient le code pour le prétraitement et l'analyse des données.
-
-**nom_de_fichier_1**
-Cet script ...
-
-## Figures
-inclut les figures générés.
-
-## Resultats
-comprend des tableaux de fréquence et des données d'entrée pour générer les chiffres.
+"miniatelier_geocodage" contient des scripts en R pour la geolocalisation des crimes sur la territoire de Montreal.
 
 # Licence
 
