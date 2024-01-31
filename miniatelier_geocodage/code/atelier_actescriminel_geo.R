@@ -1,6 +1,6 @@
-########################### LADIREC Atelier 07 ################################
-## Auteur·rice·s: Lisa Teichmann, Pascal Brissette et Amelie Ducharme
-## Date: 13 Mai 2022
+########################### Mini-atelier HNU6055/3055 Geocodage des crimes ################################
+## Auteur·rice·s: Lisa Teichmann
+## Date: 31 Janvier 2024
 
 ## Le script ci-dessous traite des données sur la criminalité à Montreal de 2015 à aujourd'hui.
 ## Liste des actes criminels enregistrés par le Service de police de la Ville de Montréal (SPVM).
@@ -47,24 +47,24 @@ actes_criminel[1,"LONGITUDE"]
 ##Défi 5: Trouver la première valeur de la colonne LATITUDE avec l'index
 actes_criminel[]
 
-## Géocodage avec tidygeocoder
+## (Marche seulement localement) Géocodage avec tidygeocoder
 ## tidygeocoder fonctionne avec le open API de Nominatim et la limite de requêtes par jour est de 2000 adresses
 
-## Créer un sous-ensemble aléatoire de la table des données avec sample_n()
-actes_100 <- sample_n(actes_criminel, 100)
-
-## Géocodage inversé
-## Pour l'informatin: https://cran.r-project.org/web/packages/tidygeocoder/vignettes/tidygeocoder.html
-
-actes_100_geo <- actes_100 %>%
-  reverse_geocode(lat = LATITUDE, long = LONGITUDE, 
-                  address = addr, 
-                  method = "osm") ## osm=openstreetmaps
-
-## Regarder les donnees du géocodage inversé avec View()
-View()
+# ## Géocodage inversé
+# ## Pour l'informatin: https://cran.r-project.org/web/packages/tidygeocoder/vignettes/tidygeocoder.html
+# 
+# actes_100_geo <- actes_100 %>%
+#   reverse_geocode(lat = LATITUDE, long = LONGITUDE, 
+#                   address = addr, 
+#                   method = "osm") ## osm=openstreetmaps
+# 
+# ## Regarder les donnees du géocodage inversé avec View()
+# View()
 
 ### Visualiser avec leaflet
+
+## Créer un sous-ensemble aléatoire de la table des données avec sample_n()
+actes_100_geo <- sample_n(actes_criminel, 100)
 
 ### Option 1: Créer une carte de chaleur ("heatmap")
 
