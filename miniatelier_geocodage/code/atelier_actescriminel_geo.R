@@ -10,7 +10,7 @@
 ### Etape 1: Initialisation et importation des données.
 
 ## Définir le chemin vers votre répertoire de travail
-# setwd("/cloud/project")
+setwd("/cloud/project/miniatelier_geocodage")
 
 ## Installer les extensions nécessaires pour l'exécution des tâches.
 install.packages(c("data.table", "tidyverse", "dplyr", "tidygeocoder", "leaflet"))
@@ -23,7 +23,7 @@ library(data.table)
 ##Télécharger les données et sauvegarder dans le sous-dossier "donnees" (optionnel)
 
 ## Importer les données en format tsv à l'environnement de travail de R
-actes_criminel <- fread("donnees/actes-criminels.tsv")
+actes_criminel <- read.csv("donnees/actes-criminels.csv")
 
 ## Défi 1: Regarder les données avec View()
 View()
