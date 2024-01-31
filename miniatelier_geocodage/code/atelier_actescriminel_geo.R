@@ -104,19 +104,19 @@ leaflet(actes_100_geo) %>%
 %>% setView(lng = -73.569806, lat = 45.5031824, zoom = 8)
 
 
-## Défi 7: Créer un sous-ensemble de 50 adresses et faire un géocodage inversé
-actes_sub <- sample_n() ##Indice: regardez le code precedente et copier coller
-
-actes_sub_geo <- actes_sub %>%
-  reverse_geocode()
-
-View()
-
-
-leaflet() %>%
-  addTiles() %>%
-  addAwesomeMarkers() %>% 
-  setView()
+# ## Défi 7: Créer un sous-ensemble de 50 adresses et faire un géocodage inversé
+# actes_sub <- sample_n() ##Indice: regardez le code precedente et copier coller
+# 
+# actes_sub_geo <- actes_sub %>%
+#   reverse_geocode()
+# 
+# View()
+# 
+# 
+# leaflet() %>%
+#   addTiles() %>%
+#   addAwesomeMarkers() %>% 
+#   setView()
 
 ## Défi 8: Personnaliser les icônes
 ## https://fontawesome.com/icons/marker?s=solid
@@ -129,7 +129,7 @@ markers <- makeAwesomeIcon(
 )
 
 ## Re-executer la code pour creer la carte avec les nouvaux marqueurs
-leaflet(actes_sub_geo) %>%
+leaflet(actes_100_geo) %>%
   addTiles() %>%
   addAwesomeMarkers(~LONGITUDE,
                     ~LATITUDE,
