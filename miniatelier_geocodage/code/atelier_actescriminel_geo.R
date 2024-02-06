@@ -26,16 +26,16 @@ library(data.table)
 actes_criminel <- read.csv("donnees/actes-criminels.csv")
 
 ## Défi 1: Regarder les données avec View()
-View()
+View(actes_criminel)
 
 ## Défi 2: Explorer les données avec la function summary() et faire une recherche sur les données dans les colonnes
-summary()
+summary(actes_criminel)
 
 ## Regarder les variables spécifiques avec table() et $ pour la colonne
 table(actes_criminel$CATEGORIE)
 
 ## Défi 3: Regarder la variable QUART avec table() et $
-
+table(actes_criminel$QUART)
 
 ### Géocodage inversé = attribuer une adresse à des coordonnées géographiques
 ## Les coordonnées sont dans les colonnes LONGITUDE et LATITUDE
@@ -45,7 +45,7 @@ table(actes_criminel$CATEGORIE)
 actes_criminel[1,"LONGITUDE"]
 
 ##Défi 5: Trouver la première valeur de la colonne LATITUDE avec l'index
-actes_criminel[]
+actes_criminel[7,"LATITUDE"]
 
 ## (Marche seulement localement) Géocodage avec tidygeocoder
 ## tidygeocoder fonctionne avec le open API de Nominatim et la limite de requêtes par jour est de 2000 adresses
@@ -73,7 +73,7 @@ library(leaflet.extras)
 
 leaflet(actes_100_geo) %>% ## utiliser leaflet
   addTiles() %>% ## ajouter une carte de base
-  addHeatmap(lng = actes_100_geo$LONGITUDE, lat = actes_100_geo$LATITUDE, blur = 40, max = 0.05, radius = 15) %>% 
+  addHeatmap(lng = actes_100_geo$LONGITUDE, lat = actes_100_geo$LATITUDE, blur = 40, max = 0.5, radius = 150) %>% 
   setView(lng = -73.569806, lat = 45.5031824, zoom = 9) ##zoom sur l'île de Montréal
 
 ## Option 2: Utiliser les marqueurs ronds ("circlemarkers")
@@ -81,13 +81,13 @@ leaflet(actes_100_geo) %>% ## utiliser leaflet
 leaflet() %>%
   addTiles() %>% 
   addCircleMarkers(data = actes_100_geo, ##ajouter les marqueurs ronds
-                   popup=~addr) ##ajouter un popup de l'adresse
+                   popup=~CATEGORIE) ##ajouter un popup de l'adresse
 
 ## Option 3: Personnaliser les marqueurs ("markers")
 markers <- makeAwesomeIcon(
-  icon = "info",
+  icon = "envelope",
   iconColor = "black",
-  markerColor = "blue",
+  markerColor = "red",
   library = "fa"
 )
 
@@ -96,12 +96,19 @@ leaflet(actes_100_geo) %>%
   addAwesomeMarkers(~LONGITUDE,
                     ~LATITUDE,
                     icon = markers,
-                    popup = ~addr,
+                    popup = ~CATEGORIE,
                     label = ~DATE)
 
-## Défi 6: Faire un zoom sur l'île de Montréal avec
+## Défi 6: Faire un zoom sur l'île de Montréal avec setView
 ##Indice: ajoutez le code precedent ici 
-%>% setView(lng = -73.569806, lat = 45.5031824, zoom = 8)
+leaflet(actes_100_geo) %>%
+  addTiles() %>%
+  addAwesomeMarkers(~LONGITUDE,
+                    ~LATITUDE,
+                    icon = markers,
+                    popup = ~CATEGORIE,
+                    label = ~DATE) %>%
+  setView(lng = -73.569806, lat = 45.5031824, zoom = 9)
 
 
 # ## Défi 7: Créer un sous-ensemble de 50 adresses et faire un géocodage inversé
@@ -122,9 +129,9 @@ leaflet(actes_100_geo) %>%
 ## https://fontawesome.com/icons/marker?s=solid
 
 markers <- makeAwesomeIcon(
-  icon = "", ## pour les icons regardez https://fontawesome.com/icons/marker?s=solid
-  iconColor = "", ## e.g. white, grey, black
-  markerColor = "", ## e.g. red, blue, pink
+  icon = "warning", ## pour les icons regardez https://fontawesome.com/icons/marker?s=solid
+  iconColor = "lightgrey", ## e.g. white, grey, black
+  markerColor = "red", ## e.g. red, blue, pink
   library = "fa"
 )
 
@@ -134,7 +141,11 @@ leaflet(actes_100_geo) %>%
   addAwesomeMarkers(~LONGITUDE,
                     ~LATITUDE,
                     icon = markers,
-                    popup = ~addr,
+                    popup = ~paste(
+                      "<strong>Catégorie</strong>: ", CATEGORIE, "<br>",
+                      "<strong>Coordonnées:</strong> <code>", LONGITUDE, "/", LATITUDE, "</code> <br>",
+                      "<strong>Date:</strong> ", DATE 
+                      ),
                     label = ~DATE)
 
 ### Option 4: Visualiser selon les données catégoriques avec une palette des coleurs
@@ -157,15 +168,18 @@ leaflet(actes_100_geo) %>%
 View(actes_100_geo)
 
 pal <- colorFactor(
+  palette = "Reds",
+  domain = actes_100_geo$CATEGORIE
 )
 
-leaflet() %>%
+leaflet(actes_100_geo) %>%
   addTiles() %>%
-  addCircles(
-    
-  ) %>% 
-  addLegend() %>% 
-  setView()
+  addCircles(lng = ~LONGITUDE, lat = ~LATITUDE, weight = 5,
+    popup = ~DATE,
+    color = ~pal(CATEGORIE)
+  ) %>%
+  addLegend(pal = pal, values = ~CATEGORIE, group = "circles", position = "topright") %>%
+  setView(lng = -73.569806, lat = 45.5031824, zoom = 8)
 
 
 ## Extra: Changer les paramètres 
@@ -198,7 +212,7 @@ leaflet(actes_100_geo) %>%
 actes_100_geo_nuit <- filter(actes_100_geo, QUART == "nuit")
 
 ## Défi 11: Créer un sous-ensemble pour les crimes de jour avec filter()
-actes_100_geo_jour <- filter()
+actes_100_geo_jour <- filter(actes_100_geo, QUART == "jour")
 
 ## Créer une carte avec des couches différentes pour la nuit et le jour
 
@@ -262,14 +276,44 @@ actes_100_geo_vols <- filter(actes_100_geo, CATEGORIE == "Vols qualifiés")
 leaflet(actes_100_geo) %>%
   addTiles() %>%
   # Overlay groups
-  addCircleMarkers() %>% ##ajouter actes_100_geo_intro et les parametres de la carte precedente (data=, lng=, lat=, weight=, radius=, color=, group=)
-  addCircleMarkers() %>% ##ajouter actes_100_geo_mefait et data=, lng=, lat=, weight=, radius=, color=, group=
-  addCircleMarkers() %>% ##ajouter actes_100_geo_voldans et data=, lng=, lat=, weight=, radius=, color=, group=
-  addCircleMarkers() %>% ##ajouter actes_100_geo_volde et data=, lng=, lat=, weight=, radius=, color=, group=
-  addCircleMarkers() %>% ##ajouter actes_100_geo_vols et data=, lng=, lat=, weight=, radius=, color=, group=
+  ##ajouter actes_100_geo_intro et les parametres de la carte precedente (data=, lng=, lat=, weight=, radius=, color=, group=)
+  addCircleMarkers(data=actes_100_geo_intro, 
+                   lng = ~LONGITUDE, lat = ~LATITUDE, 
+                   weight = 5,
+                   radius = 5,
+                   color = "pink",
+                   group = "Catégorie") %>%
+  ##ajouter actes_100_geo_mefait et data=, lng=, lat=, weight=, radius=, color=, group=
+  addCircleMarkers(data=actes_100_geo_mefait, 
+                   lng = ~LONGITUDE, lat = ~LATITUDE, 
+                   weight = 5,
+                   radius = 5,
+                   color = "orange",
+                   group = "Catégorie") %>% 
+  ##ajouter actes_100_geo_voldans et data=, lng=, lat=, weight=, radius=, color=, group=
+  addCircleMarkers(data=actes_100_geo_voldans, 
+                   lng = ~LONGITUDE, lat = ~LATITUDE, 
+                   weight = 5,
+                   radius = 5,
+                   color = "green",
+                   group = "Catégorie") %>%
+  ##ajouter actes_100_geo_volde et data=, lng=, lat=, weight=, radius=, color=, group=
+  addCircleMarkers(data=actes_100_geo_volde, 
+                   lng = ~LONGITUDE, lat = ~LATITUDE, 
+                   weight = 5,
+                   radius = 5,
+                   color = "purple",
+                   group = "Catégorie") %>%
+  ##ajouter actes_100_geo_vols et data=, lng=, lat=, weight=, radius=, color=, group=
+  addCircleMarkers(data=actes_100_geo_vols, 
+                   lng = ~LONGITUDE, lat = ~LATITUDE, 
+                   weight = 5,
+                   radius = 5,
+                   color = "indigo",
+                   group = "Catégorie") %>%
   
   addLayersControl(
-    overlayGroups = c(), ## ajouter le nom des groupes entre guillemets ("")
+    overlayGroups = c("Catégorie"), ## ajouter le nom des groupes entre guillemets ("")
     position = c("topright")) %>% 
   setView(lng = -73.569806, lat = 45.5031824, zoom = 8)
 
@@ -280,16 +324,73 @@ leaflet(actes_100_geo) %>%
 ## Créer un sous-ensemble pour les années
 View(table(actes_100_geo$DATE))
 
-actes_100_geo_2015 <- filter()
-actes_100_geo_2016 <- filter()
-actes_100_geo_2017 <- filter()
-actes_100_geo_2018 <- filter()
-actes_100_geo_2019 <- filter()
-actes_100_geo_2020 <- filter()
-actes_100_geo_2021 <- filter()
-actes_100_geo_2022 <- filter()
+actes_100_geo_2015 <- filter(actes_100_geo, startsWith(DATE, '2015'))
+actes_100_geo_2016 <- filter(actes_100_geo, startsWith(DATE, '2016'))
+actes_100_geo_2017 <- filter(actes_100_geo, startsWith(DATE, '2017'))
+actes_100_geo_2018 <- filter(actes_100_geo, startsWith(DATE, '2018'))
+actes_100_geo_2019 <- filter(actes_100_geo, startsWith(DATE, '2019'))
+actes_100_geo_2020 <- filter(actes_100_geo, startsWith(DATE, '2020'))
+actes_100_geo_2021 <- filter(actes_100_geo, startsWith(DATE, '2021'))
+actes_100_geo_2022 <- filter(actes_100_geo, startsWith(DATE, '2022'))
 
 ## Créer la carte avec les couches pour les années
 
+leaflet(actes_100_geo) %>%
+  addTiles() %>%
+  # Overlay groups
+  ##ajouter actes_100_geo_intro et les parametres de la carte precedente (data=, lng=, lat=, weight=, radius=, color=, group=)
+  addCircleMarkers(data=actes_100_geo_2015, 
+                   lng = ~LONGITUDE, lat = ~LATITUDE, 
+                   weight = 5,
+                   radius = 5,
+                   color = "red",
+                   group = "2015") %>%
+  addCircleMarkers(data=actes_100_geo_2016, 
+                   lng = ~LONGITUDE, lat = ~LATITUDE, 
+                   weight = 5,
+                   radius = 5,
+                   color = "orange",
+                   group = "2016") %>%
+  addCircleMarkers(data=actes_100_geo_2017, 
+                   lng = ~LONGITUDE, lat = ~LATITUDE, 
+                   weight = 5,
+                   radius = 5,
+                   color = "goldenrod",
+                   group = "2017") %>%
+  addCircleMarkers(data=actes_100_geo_2018, 
+                   lng = ~LONGITUDE, lat = ~LATITUDE, 
+                   weight = 5,
+                   radius = 5,
+                   color = "limegreen",
+                   group = "2018") %>%
+  addCircleMarkers(data=actes_100_geo_2019, 
+                   lng = ~LONGITUDE, lat = ~LATITUDE, 
+                   weight = 5,
+                   radius = 5,
+                   color = "turquoise",
+                   group = "2019") %>%
+  addCircleMarkers(data=actes_100_geo_2020, 
+                   lng = ~LONGITUDE, lat = ~LATITUDE, 
+                   weight = 5,
+                   radius = 5,
+                   color = "skyblue",
+                   group = "2020") %>%
+  addCircleMarkers(data=actes_100_geo_2021, 
+                   lng = ~LONGITUDE, lat = ~LATITUDE, 
+                   weight = 5,
+                   radius = 5,
+                   color = "cornflowerblue",
+                   group = "2021") %>%
+  addCircleMarkers(data=actes_100_geo_2022, 
+                   lng = ~LONGITUDE, lat = ~LATITUDE, 
+                   weight = 5,
+                   radius = 5,
+                   color = "indigo",
+                   group = "2022") %>%
+  addLayersControl(
+    # une couche par année
+    overlayGroups = c('2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022'), ## ajouter le nom des groupes entre guillemets ("")
+    position = c("topright")) %>% 
+  setView(lng = -73.569806, lat = 45.5031824, zoom = 8)
 
 
